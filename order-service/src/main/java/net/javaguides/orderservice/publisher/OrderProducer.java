@@ -18,6 +18,9 @@ public class OrderProducer {
     @Value("${rabbitmq.binding.routing.key}")
     private String orderRoutingKey;
 
+    @Value("${rabbitmq.binding.email.routing.key}")
+    private String emailRoutingKey;
+
     private RabbitTemplate rabbitTemplate;
 
     public OrderProducer(RabbitTemplate rabbitTemplate) {
@@ -26,6 +29,11 @@ public class OrderProducer {
 
     public void sendMessage(OrderEvent orderEvent) {
         LOGGER.info(String.format("Order event sent to RabbitMQ => %s", orderEvent.toString()));
+
+        //send an order event to order queue
         rabbitTemplate.convertAndSend(exchange, orderRoutingKey, orderEvent);
+
+        //send an order event to email queue
+        rabbitTemplate.convertAndSend(exchange, emailRoutingKey, orderEvent);
     }
 }
